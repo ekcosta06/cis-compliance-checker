@@ -1,0 +1,250 @@
+# CIS Benchmark Definitions
+# This file defines all compliance checks to be performed
+
+benchmarks:
+  cis_linux:
+    name: "CIS Benchmark for Linux"
+    version: "2.0.0"
+    checks:
+      - id: "5.4.1"
+        title: "Password Expiration"
+        description: "Ensure password expiration is 365 days or less"
+        severity: "HIGH"
+        category: "Access Control"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "file_content"
+        command: "grep PASS_MAX_DAYS /etc/login.defs"
+        evaluation:
+          type: "numeric_comparison"
+          operator: "<="
+          expected_value: 365
+          extract_pattern: "PASS_MAX_DAYS\\s+(\\d+)"
+        remediation: "Edit /etc/login.defs and set PASS_MAX_DAYS to 365 or less"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "5.3.1"
+        title: "Minimum Password Length"
+        description: "Ensure password minimum length is 14 or more characters"
+        severity: "HIGH"
+        category: "Access Control"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "file_content"
+        command: "grep -E '^minlen' /etc/security/pwquality.conf"
+        evaluation:
+          type: "numeric_comparison"
+          operator: ">="
+          expected_value: 14
+          extract_pattern: "minlen\\s*=\\s*(\\d+)"
+        remediation: "Edit /etc/security/pwquality.conf and set minlen = 14"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "5.2.4"
+        title: "SSH Protocol Version"
+        description: "Ensure SSH Protocol is set to 2"
+        severity: "CRITICAL"
+        category: "Network Security"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "file_content"
+        command: "grep '^Protocol' /etc/ssh/sshd_config"
+        evaluation:
+          type: "string_match"
+          expected_value: "2"
+          extract_pattern: "Protocol\\s+(\\d+)"
+          default_pass: true  # Protocol 2 is default in modern SSH
+        remediation: "Edit /etc/ssh/sshd_config and add 'Protocol 2'"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "5.2.10"
+        title: "SSH Root Login Disabled"
+        description: "Ensure SSH root login is disabled"
+        severity: "CRITICAL"
+        category: "Access Control"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "file_content"
+        command: "grep '^PermitRootLogin' /etc/ssh/sshd_config"
+        evaluation:
+          type: "string_match"
+          expected_value: "no"
+          extract_pattern: "PermitRootLogin\\s+(\\w+)"
+        remediation: "Edit /etc/ssh/sshd_config and set 'PermitRootLogin no'"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "5.2.5"
+        title: "SSH X11 Forwarding"
+        description: "Ensure SSH X11 forwarding is disabled"
+        severity: "MEDIUM"
+        category: "Network Security"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "file_content"
+        command: "grep '^X11Forwarding' /etc/ssh/sshd_config"
+        evaluation:
+          type: "string_match"
+          expected_value: "no"
+          extract_pattern: "X11Forwarding\\s+(\\w+)"
+        remediation: "Edit /etc/ssh/sshd_config and set 'X11Forwarding no'"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "3.5.1.1"
+        title: "Firewall Enabled"
+        description: "Ensure firewall is active and enabled"
+        severity: "CRITICAL"
+        category: "Network Security"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "command_output"
+        command: "ufw status"
+        evaluation:
+          type: "string_contains"
+          expected_value: "active"
+        fallback_command: "systemctl is-active firewalld"
+        remediation: "Enable firewall with 'ufw enable' or 'systemctl start firewalld'"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "6.1.2"
+        title: "/etc/passwd Permissions"
+        description: "Ensure permissions on /etc/passwd are configured (644 or more restrictive)"
+        severity: "HIGH"
+        category: "File System"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "file_permissions"
+        command: "stat -c '%a' /etc/passwd"
+        evaluation:
+          type: "permission_check"
+          expected_value: "644"
+        remediation: "Run 'chmod 644 /etc/passwd'"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "6.1.3"
+        title: "/etc/shadow Permissions"
+        description: "Ensure permissions on /etc/shadow are configured (000 or 400)"
+        severity: "CRITICAL"
+        category: "File System"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "file_permissions"
+        command: "stat -c '%a' /etc/shadow"
+        evaluation:
+          type: "permission_check"
+          expected_value: "000"
+          acceptable_values: ["000", "400"]
+        remediation: "Run 'chmod 000 /etc/shadow' or 'chmod 400 /etc/shadow'"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "6.1.11"
+        title: "Unowned Files Check"
+        description: "Ensure no unowned files or directories exist"
+        severity: "MEDIUM"
+        category: "File System"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "command_output"
+        command: "find / -xdev -nouser -ls 2>/dev/null | head -1"
+        evaluation:
+          type: "empty_output"
+        remediation: "Identify and assign ownership to unowned files"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+      - id: "1.1.1.1"
+        title: "Cramfs Disabled"
+        description: "Ensure mounting of cramfs filesystems is disabled"
+        severity: "LOW"
+        category: "File System"
+        framework: "CIS"
+        applicable_systems: ["Linux"]
+        check_type: "kernel_module"
+        command: "lsmod | grep cramfs"
+        evaluation:
+          type: "empty_output"
+        remediation: "Add 'install cramfs /bin/true' to /etc/modprobe.d/cramfs.conf"
+        references:
+          - "https://www.cisecurity.org/benchmark/distribution_independent_linux"
+
+  nist_800_53:
+    name: "NIST 800-53 Controls"
+    version: "Rev 5"
+    checks:
+      - id: "AC-2"
+        title: "Account Management"
+        description: "Verify inactive user accounts are disabled"
+        severity: "HIGH"
+        category: "Access Control"
+        framework: "NIST"
+        applicable_systems: ["Linux", "Windows"]
+        check_type: "command_output"
+        command: "lastlog -b 90 -t 90"
+        evaluation:
+          type: "custom"
+        remediation: "Review and disable inactive accounts"
+        references:
+          - "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf"
+
+      - id: "AC-7"
+        title: "Unsuccessful Login Attempts"
+        description: "Ensure account lockout after failed login attempts"
+        severity: "HIGH"
+        category: "Access Control"
+        framework: "NIST"
+        applicable_systems: ["Linux"]
+        check_type: "file_content"
+        command: "grep pam_faillock /etc/pam.d/common-auth"
+        evaluation:
+          type: "string_contains"
+          expected_value: "pam_faillock"
+        remediation: "Configure pam_faillock in PAM configuration"
+        references:
+          - "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf"
+
+  pci_dss:
+    name: "PCI DSS Requirements"
+    version: "4.0"
+    checks:
+      - id: "2.2.4"
+        title: "System Security Parameters"
+        description: "Configure system security parameters to prevent misuse"
+        severity: "HIGH"
+        category: "Configuration Management"
+        framework: "PCI-DSS"
+        applicable_systems: ["Linux", "Windows"]
+        check_type: "file_content"
+        command: "sysctl net.ipv4.conf.all.send_redirects"
+        evaluation:
+          type: "numeric_comparison"
+          operator: "=="
+          expected_value: 0
+          extract_pattern: "=\\s*(\\d+)"
+        remediation: "Set 'net.ipv4.conf.all.send_redirects = 0' in /etc/sysctl.conf"
+        references:
+          - "https://www.pcisecuritystandards.org/"
+
+      - id: "8.3.6"
+        title: "Password Complexity"
+        description: "Passwords must contain both numeric and alphabetic characters"
+        severity: "HIGH"
+        category: "Access Control"
+        framework: "PCI-DSS"
+        applicable_systems: ["Linux"]
+        check_type: "file_content"
+        command: "grep dcredit /etc/security/pwquality.conf"
+        evaluation:
+          type: "numeric_comparison"
+          operator: "<="
+          expected_value: -1
+          extract_pattern: "dcredit\\s*=\\s*(-?\\d+)"
+        remediation: "Set 'dcredit = -1' in /etc/security/pwquality.conf"
+        references:
+          - "https://www.pcisecuritystandards.org/"

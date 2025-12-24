@@ -1,0 +1,258 @@
+# Compliance Checker Configuration File
+
+# General Settings
+general:
+  app_name: "GRC Compliance Checker"
+  version: "1.0.0"
+  author: "Your Name"
+
+# Benchmark Selection
+# Specify which compliance frameworks to check against
+frameworks:
+  enabled:
+    - cis_linux
+    - nist_800_53
+    - pci_dss
+  
+  # Path to benchmark definitions file
+  benchmark_file: "benchmarks.yaml"
+
+# Severity Filtering
+# Only run checks matching these severity levels
+severity_filter:
+  enabled: true
+  levels:
+    - CRITICAL
+    - HIGH
+    - MEDIUM
+    - LOW
+
+# System Configuration
+system:
+  # Operating system (auto-detected if not specified)
+  os: "auto"  # Options: auto, Linux, Windows, Darwin
+  
+  # Timeout for each command execution (seconds)
+  command_timeout: 10
+  
+  # Skip checks that require elevated privileges
+  skip_privileged_checks: false
+
+# Reporting Configuration
+reporting:
+  # Output formats to generate
+  formats:
+    - json
+    - html
+    - text
+    - csv
+  
+  # Output directory for reports
+  output_directory: "./compliance_reports"
+  
+  # Include timestamps in filenames
+  timestamp_filenames: true
+  
+  # Report detail level: minimal, standard, detailed
+  detail_level: "detailed"
+  
+  # Include remediation steps in reports
+  include_remediation: true
+  
+  # Include references/links in reports
+  include_references: true
+
+# Filtering Options
+filters:
+  # Only run checks with specific IDs (empty = run all)
+  include_check_ids: []
+  
+  # Exclude specific check IDs
+  exclude_check_ids: []
+  
+  # Only run checks from specific categories
+  include_categories:
+    - Access Control
+    - Network Security
+    - File System
+    - Configuration Management
+  
+  # Exclude specific categories
+  exclude_categories: []
+
+# Notification Settings
+notifications:
+  enabled: false
+  
+  # Email notifications
+  email:
+    enabled: false
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    from_address: "compliance@example.com"
+    to_addresses:
+      - "admin@example.com"
+    subject_prefix: "[Compliance Check]"
+    # Only notify on failures
+    only_on_failure: true
+  
+  # Slack notifications
+  slack:
+    enabled: false
+    webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+    channel: "#compliance"
+    only_on_failure: true
+  
+  # Webhook notifications
+  webhook:
+    enabled: false
+    url: "https://your-webhook-endpoint.com/compliance"
+    method: "POST"
+    headers:
+      Content-Type: "application/json"
+
+# Scheduling (for automated runs)
+scheduling:
+  enabled: false
+  
+  # Cron expression (e.g., "0 2 * * *" for 2 AM daily)
+  cron_expression: "0 2 * * *"
+  
+  # Or use simple intervals
+  interval:
+    enabled: false
+    hours: 24  # Run every 24 hours
+
+# Logging Configuration
+logging:
+  enabled: true
+  level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_file: "./compliance_checker.log"
+  max_file_size_mb: 10
+  backup_count: 5
+  
+  # Log to console
+  console_output: true
+  
+  # Detailed command output logging
+  log_command_output: false
+
+# Database Configuration (for storing historical results)
+database:
+  enabled: false
+  type: "sqlite"  # Options: sqlite, postgresql, mysql
+  
+  # SQLite configuration
+  sqlite:
+    database_file: "./compliance_history.db"
+  
+  # PostgreSQL configuration
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "compliance"
+    username: "compliance_user"
+    password: "secure_password"
+  
+  # Retention policy (days to keep historical data)
+  retention_days: 90
+
+# Performance Settings
+performance:
+  # Run checks in parallel
+  parallel_execution: true
+  max_workers: 4
+  
+  # Cache command results (for repeated checks)
+  enable_caching: false
+  cache_ttl_seconds: 300
+
+# Remediation Settings
+remediation:
+  # Generate remediation scripts
+  generate_scripts: true
+  script_format: "bash"  # Options: bash, powershell, ansible
+  
+  # Auto-remediate (DANGEROUS - use with caution)
+  auto_remediate: false
+  
+  # Only auto-remediate checks with these severities
+  auto_remediate_severities:
+    - LOW
+  
+  # Require confirmation before remediation
+  require_confirmation: true
+  
+  # Backup before making changes
+  create_backups: true
+  backup_directory: "./backups"
+
+# Integration Settings
+integrations:
+  # SIEM Integration
+  siem:
+    enabled: false
+    type: "splunk"  # Options: splunk, elk, sentinel
+    endpoint: "https://siem.example.com/api"
+    api_key: "your-api-key"
+  
+  # Ticketing System Integration
+  ticketing:
+    enabled: false
+    system: "jira"  # Options: jira, servicenow
+    endpoint: "https://jira.example.com"
+    project_key: "COMP"
+    create_ticket_on_failure: true
+  
+  # GRC Platform Integration
+  grc_platform:
+    enabled: false
+    platform: "servicenow_grc"
+    endpoint: "https://grc.example.com/api"
+    api_key: "your-api-key"
+
+# Custom Check Definitions
+# Add your own custom checks here
+custom_checks:
+  enabled: false
+  checks_directory: "./custom_checks"
+
+# Exclusions (for exceptions/accepted risks)
+exclusions:
+  enabled: true
+  # File containing excluded checks with justifications
+  exclusions_file: "./exclusions.yaml"
+  
+  # Require approval for exclusions
+  require_approval: false
+  
+  # Expiration for exclusions (days)
+  default_expiration_days: 90
+
+# Comparison Settings
+comparison:
+  # Compare with previous scan
+  compare_with_previous: true
+  
+  # Show only changes
+  show_only_changes: false
+  
+  # Alert on status changes
+  alert_on_regression: true
+
+# Advanced Options
+advanced:
+  # Dry run mode (don't execute actual checks)
+  dry_run: false
+  
+  # Verbose output
+  verbose: false
+  
+  # Debug mode
+  debug: false
+  
+  # Strict mode (fail on warnings)
+  strict_mode: false
+  
+  # Continue on errors
+  continue_on_error: true
